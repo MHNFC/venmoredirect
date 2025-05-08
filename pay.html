@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting to Venmo...</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    button {
+      background-color: #3D95CE;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #357ab8;
+    }
+  </style>
+</head>
+<body>
+  <h2>Preparing to open Venmo...</h2>
+  <p>If nothing happens automatically, you may need to tap a button below.</p>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const client = params.get('client');
+    const venmoAppLink = `venmo://paycharge?txn=pay&recipients=${encodeURIComponent(client)}&amount=0`;
+    const venmoWebLink = `https://venmo.com/${encodeURIComponent(client)}`;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+
+    if (client) {
+      if (isAndroid) {
+        // Try Venmo app, fallback to web
+        window.location.href = venmoAppLink;
+        setTimeout(() => {
+          window.location.href = venmoWebLink;
+        }, 2000);
+      } else if (isIOS) {
+        // iOS requires a button tap to open the app
+        document.body.innerHTML = `
+          <h2>Open in Venmo</h2>
+          <p>Tap the button below to pay <strong>${client}</strong> using the Venmo app.</p>
+          <button onclick="openVenmo()">Pay ${client} in Venmo</button>
+        `;
+      } else {
+        // Unknown device: fallback to web profile
+        window.location.href = venmoWebLink;
+      }
+    } else {
+      document.body.innerHTML = "Missing client info.";
+    }
+
+    function openVenmo() {
+      window.location.href = venmoAppLink;
+      setTimeout(() => {
+        window.location.href = venmoWebLink;
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
